@@ -1,0 +1,9 @@
+# Ensure LF line endings for scripts when checked out
+*.sh eol=lf
+
+# Ensure LF line endings for Python scripts when checked out
+*.py eol=lf
+
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto

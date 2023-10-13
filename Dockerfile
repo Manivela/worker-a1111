@@ -53,8 +53,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 
 COPY --from=download /repositories/ ${ROOT}/repositories/
+# CyberRealistic_V3.0-FP32.safetensors
 ADD ./model.safetensors /model.safetensors
+ADD ./realisticVisionV51_v51VAE.safetensors /realisticVisionV51_v51VAE.safetensors
 ADD ./control_v1p_sd15_brightness.safetensors /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v1p_sd15_brightness.safetensors
+
 RUN mkdir ${ROOT}/interrogate && cp ${ROOT}/repositories/clip-interrogator/data/* ${ROOT}/interrogate
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r ${ROOT}/repositories/CodeFormer/requirements.txt
@@ -77,6 +80,7 @@ ADD src .
 
 COPY builder/cache.py /stable-diffusion-webui/cache.py
 RUN cd /stable-diffusion-webui && python cache.py --use-cpu=all --ckpt /model.safetensors
+RUN cd /stable-diffusion-webui && python cache.py --use-cpu=all --ckpt /realisticVisionV51_v51VAE.safetensors
 
 # Cleanup section (Worker Template)
 RUN apt-get autoremove -y && \
