@@ -1,0 +1,9 @@
+{
+  "input": {
+    "api_name": "dreambooth",
+    "userId": "cll2afbz8000afkv9aj1mcebs",
+    "gender": "man",
+    "videoKey": "1.mp4",
+    "inferredSongKey": "output_20230909_121256.wav"
+  }
+}
