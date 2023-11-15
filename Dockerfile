@@ -46,26 +46,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     git reset --hard 89f9faa63388756314e8a1d96cf86bf5e0663045 && \
     pip install -r requirements_versions.txt
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone https://github.com/Mikubill/sd-webui-controlnet.git stable-diffusion-webui/extensions/sd-webui-controlnet \
-    && mkdir -p stable-diffusion-webui/extensions/sd-webui-controlnet/models \
-    && pip install -r stable-diffusion-webui/extensions/sd-webui-controlnet/requirements.txt
-
-# install dreambooth extension
-RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone https://github.com/d8ahazard/sd_dreambooth_extension.git stable-diffusion-webui/extensions/sd_dreambooth_extension \
-    && mkdir -p stable-diffusion-webui/extensions/sd_dreambooth_extension/models \
-    && pip install -r stable-diffusion-webui/extensions/sd_dreambooth_extension/requirements.txt
-
-
 COPY --from=download /repositories/ ${ROOT}/repositories/
-# CyberRealistic_V3.0-FP32.safetensors
-ADD ./model.safetensors /model.safetensors
-ADD ./realisticVisionV51_v51VAE.safetensors /realisticVisionV51_v51VAE.safetensors
-ADD ./control_v1p_sd15_brightness.safetensors /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v1p_sd15_brightness.safetensors
-ADD ./realisticVisionV51_v51VAE.safetensors /stable-diffusion-webui/models/dreambooth/realisticVisionV51_v51VAE.safetensors
 
-RUN mkdir ${ROOT}/interrogate && cp ${ROOT}/repositories/clip-interrogator/data/* ${ROOT}/interrogate
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r ${ROOT}/repositories/CodeFormer/requirements.txt
 
@@ -84,9 +66,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements_versions.txt
 
 ADD src .
-
-COPY builder/cache.py /stable-diffusion-webui/cache.py
-RUN cd /stable-diffusion-webui && python cache.py --use-cpu=all --ckpt /model.safetensors
 
 # Cleanup section (Worker Template)
 RUN apt-get autoremove -y && \
