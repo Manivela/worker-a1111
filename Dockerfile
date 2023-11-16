@@ -39,7 +39,7 @@ RUN apt-get update && \
     apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && apt-get clean -y
 
 RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip \
-    pip install torch torchvision torchaudio
+    pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
 
 ARG SHA=4afaaf8a020c1df457bcf7250cb1c7f609699fa7
 
