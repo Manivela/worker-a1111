@@ -87,9 +87,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 ADD src .
 
-COPY builder/cache.py /stable-diffusion-webui/cache.py
-RUN cd /stable-diffusion-webui && python cache.py --use-cpu=all --ckpt /realisticVisionV51_v51VAE.safetensors
-
 # Cleanup section (Worker Template)
 RUN apt-get autoremove -y && \
     apt-get clean -y && \
