@@ -41,6 +41,14 @@ RUN apt-get update && \
 RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip \
     pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
 
+ARG SHA=4afaaf8a020c1df457bcf7250cb1c7f609699fa7
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git && \
+    cd stable-diffusion-webui && \
+    git reset --hard ${SHA} && \
+    pip install -r requirements_versions.txt
+
 # install controlnet
 RUN --mount=type=cache,target=/root/.cache/pip \
     git clone https://github.com/Mikubill/sd-webui-controlnet.git stable-diffusion-webui/extensions/sd-webui-controlnet \
@@ -53,18 +61,12 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && mkdir -p stable-diffusion-webui/extensions/sd-webui-reactor/models \
     && pip install -r stable-diffusion-webui/extensions/sd-webui-reactor/requirements.txt
 
-ARG SHA=4afaaf8a020c1df457bcf7250cb1c7f609699fa7
 # CyberRealistic_V3.0-FP32.safetensors
 ADD ./realisticVisionV51_v51VAE.safetensors /realisticVisionV51_v51VAE.safetensors
 ADD ./dreamshaper_8.safetensors /stable-diffusion-webui/models/Stable-diffusion/dreamshaper_8.safetensors
 ADD ./control_v11p_sd15_openpose.yaml /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.yaml
 ADD ./control_v11p_sd15_openpose.pth /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.pth
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git && \
-    cd stable-diffusion-webui && \
-    git reset --hard ${SHA} && \
-    pip install -r requirements_versions.txt
 
 COPY --from=download /repositories/ ${ROOT}/repositories/
 
