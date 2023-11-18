@@ -52,34 +52,33 @@ def run_inference(params):
         raise Exception("Method '%s' not yet implemented")
 
     model_s3_key = params["model_s3_key"]
-    model_name = model_s3_key.split("/")[-1]
+    if model_s3_key:
+        # check if model exists in /models/Stable-diffusion/<model_name>
+        # if not, download from s3
+        # if not os.path.exists(
+        #     f"/stable-diffusion-webui/models/Stable-diffusion/{model_name}"
+        # ):
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID", ""),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", ""),
+        )
+        s3.download_file(
+            "photoai-uploads",
+            model_s3_key,
+            "/stable-diffusion-webui/models/Stable-diffusion/model.ckpt",
+        )
 
-    # check if model exists in /models/Stable-diffusion/<model_name>
-    # if not, download from s3
-    # if not os.path.exists(
-    #     f"/stable-diffusion-webui/models/Stable-diffusion/{model_name}"
-    # ):
-    s3 = boto3.client(
-        "s3",
-        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID", ""),
-        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", ""),
-    )
-    s3.download_file(
-        "photoai-uploads",
-        model_s3_key,
-        "/stable-diffusion-webui/models/Stable-diffusion/model.ckpt",
-    )
+        donwloaded_model = os.path.exists(
+            "/stable-diffusion-webui/models/Stable-diffusion/model.ckpt"
+        )
+        if not donwloaded_model:
+            raise Exception("Downloaded Model NOT FOUND")
 
-    donwloaded_model = os.path.exists(
-        "/stable-diffusion-webui/models/Stable-diffusion/model.ckpt"
-    )
-    if not donwloaded_model:
-        raise Exception("Downloaded Model NOT FOUND")
-
-    automatic_session.post(
-        url="%s%s" % (config["baseurl"], "/sdapi/v1/refresh-checkpoints"),
-        timeout=config["timeout"],
-    )
+        automatic_session.post(
+            url="%s%s" % (config["baseurl"], "/sdapi/v1/refresh-checkpoints"),
+            timeout=config["timeout"],
+        )
 
     api_verb = api_config[0]
     api_path = api_config[1]
