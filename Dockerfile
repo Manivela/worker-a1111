@@ -35,7 +35,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && \
     apt install -y \
-    fonts-dejavu-core rsync git jq moreutils aria2 wget libgoogle-perftools-dev procps && \
+    build-essential fonts-dejavu-core rsync git jq moreutils aria2 wget libgoogle-perftools-dev procps && \
     apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && apt-get clean -y
 
 RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip \
@@ -58,7 +58,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # install reactor extension
 RUN --mount=type=cache,target=/root/.cache/pip \
     git clone https://github.com/Gourieff/sd-webui-reactor.git stable-diffusion-webui/extensions/sd-webui-reactor \
-    && mkdir -p stable-diffusion-webui/extensions/sd-webui-reactor/models \
     && pip install -r stable-diffusion-webui/extensions/sd-webui-reactor/requirements.txt
 
 # CyberRealistic_V3.0-FP32.safetensors
