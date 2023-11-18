@@ -51,7 +51,8 @@ def run_inference(params):
     else:
         raise Exception("Method '%s' not yet implemented")
 
-    model_s3_key = params["model_s3_key"]
+    # model_s3_key = params["model_s3_key"]
+    model_s3_key = params.get("model_s3_key", None)
     if model_s3_key:
         # check if model exists in /models/Stable-diffusion/<model_name>
         # if not, download from s3
