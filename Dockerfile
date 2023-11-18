@@ -38,8 +38,14 @@ RUN apt-get update && \
     build-essential fonts-dejavu-core rsync git jq moreutils aria2 wget libgoogle-perftools-dev procps && \
     apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && apt-get clean -y
 
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip
+
 RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip \
     pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
+
+RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip \
+    pip install onnxruntime-gpu
 
 ARG SHA=4afaaf8a020c1df457bcf7250cb1c7f609699fa7
 
@@ -75,7 +81,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Install Python dependencies (Worker Template)
 COPY builder/requirements.txt /requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
     pip install --upgrade -r /requirements.txt --no-cache-dir && \
     rm /requirements.txt
 
