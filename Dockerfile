@@ -54,6 +54,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # CyberRealistic_V3.0-FP32.safetensors
 ADD ./dreamshaper_8.safetensors /stable-diffusion-webui/models/Stable-diffusion/dreamshaper_8.safetensors
+ADD ./realistic_6.safetensors /stable-diffusion-webui/models/Stable-diffusion/realistic_6.safetensors
+ADD ./realistic_6.safetensors /model.safetensors
 ADD ./control_v11p_sd15_openpose.yaml /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.yaml
 ADD ./control_v11p_sd15_openpose.pth /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.pth
 COPY ./insightface/ /stable-diffusion-webui/models/insightface/
@@ -62,6 +64,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir runpod opencv-python-headless pyngrok
 
 ADD src .
+
+COPY builder/cache.py /stable-diffusion-webui/cache.py
+RUN cd /stable-diffusion-webui && python cache.py --use-cpu=all --ckpt /model.safetensors
 
 RUN chmod +x /start.sh
 CMD /start.sh

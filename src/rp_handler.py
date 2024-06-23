@@ -19,6 +19,8 @@ def wait_for_service(url):
     """
     Check if the service is ready to receive requests.
     """
+    retries = 0
+
     while True:
         try:
             requests.get(url, timeout=120)

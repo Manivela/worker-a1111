@@ -7,7 +7,6 @@
     "sampler_index": "DPM++ 2M SDE Karras",
     "cfg": 7,
     "steps": 50,
-    "model": "Realistic_Vision_V5.1.safetensors",
     "filter_nsfw": true,
     "width": 1280,
     "height": 720,
