@@ -130,6 +130,7 @@ env.bak/
 venv.bak/
 *.pth
 *.yaml
+*.onnx
 
 # Spyder project settings
 .spyderproject

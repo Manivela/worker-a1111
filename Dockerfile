@@ -16,14 +16,16 @@ RUN . /clone.sh CodeFormer https://github.com/sczhou/CodeFormer.git c5b4593074ba
     rm -rf assets inputs
 
 RUN . /clone.sh BLIP https://github.com/salesforce/BLIP.git 48211a1594f1321b00f14c9f7a5b4813144b2fb9 && \
-    . /clone.sh k-diffusion https://github.com/crowsonkb/k-diffusion.git c9fe758757e022f05ca5a53fa8fac28889e4f1cf && \
+    . /clone.sh k-diffusion https://github.com/crowsonkb/k-diffusion.git 5b3af030dd83e0297272d861c19477735d0317ec && \
     . /clone.sh clip-interrogator https://github.com/pharmapsychotic/clip-interrogator 2486589f24165c8e3b303f84e9dbbea318df83e8 && \
     . /clone.sh generative-models https://github.com/Stability-AI/generative-models.git 45c443b316737a4ab6e40413d7794a7f5657c19f
 
 # ---------------------------------------------------------------------------- #
 #                        Stage 3: Build the final image                        #
 # ---------------------------------------------------------------------------- #
-FROM python:3.10.9-slim
+FROM python:3.10.9-slim as build_final_image
+
+ARG SHA=5ef669de080814067961f28357256e8fe27544f4
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PIP_PREFER_BINARY=1 \
@@ -31,7 +33,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ROOT=/stable-diffusion-webui \
     PYTHONUNBUFFERED=1
 
+RUN export COMMANDLINE_ARGS="--skip-torch-cuda-test --precision full --no-half"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN export TORCH_COMMAND='pip install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/rocm5.6'
 
 RUN apt-get update && \
     apt install -y \
@@ -47,13 +51,12 @@ RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip 
 RUN --mount=type=cache,target=/cache --mount=type=cache,target=/root/.cache/pip \
     pip install onnxruntime-gpu
 
-ARG SHA=4afaaf8a020c1df457bcf7250cb1c7f609699fa7
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git && \
     cd stable-diffusion-webui && \
-    git reset --hard ${SHA} && \
-    pip install -r requirements_versions.txt
+    git reset --hard ${SHA}
+    #&& \ pip install -r requirements_versions.txt
 
 # install controlnet
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -61,17 +64,17 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && mkdir -p stable-diffusion-webui/extensions/sd-webui-controlnet/models \
     && pip install -r stable-diffusion-webui/extensions/sd-webui-controlnet/requirements.txt
 
-# install reactor extension
-RUN --mount=type=cache,target=/root/.cache/pip \
-    git clone https://github.com/Gourieff/sd-webui-reactor.git stable-diffusion-webui/extensions/sd-webui-reactor \
-    && pip install -r stable-diffusion-webui/extensions/sd-webui-reactor/requirements.txt
-
 # CyberRealistic_V3.0-FP32.safetensors
 ADD ./realisticVisionV51_v51VAE.safetensors /realisticVisionV51_v51VAE.safetensors
 ADD ./dreamshaper_8.safetensors /stable-diffusion-webui/models/Stable-diffusion/dreamshaper_8.safetensors
 ADD ./control_v11p_sd15_openpose.yaml /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.yaml
 ADD ./control_v11p_sd15_openpose.pth /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.pth
+COPY ./insightface/ /stable-diffusion-webui/models/insightface/
 
+# install reactor extension
+RUN --mount=type=cache,target=/root/.cache/pip \
+    git clone https://github.com/Gourieff/sd-webui-reactor.git stable-diffusion-webui/extensions/sd-webui-reactor \
+    && pip install -r stable-diffusion-webui/extensions/sd-webui-reactor/requirements.txt
 
 COPY --from=download /repositories/ ${ROOT}/repositories/
 
@@ -84,11 +87,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade -r /requirements.txt --no-cache-dir && \
     rm /requirements.txt
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    cd stable-diffusion-webui && \
-    git fetch && \
-    git reset --hard ${SHA} && \
-    pip install -r requirements_versions.txt
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     cd stable-diffusion-webui && \
+#     git fetch && \
+#     git reset --hard ${SHA} && \
+#     pip install -r requirements_versions.txt
 
 ADD src .
 
