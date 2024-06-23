@@ -21,10 +21,14 @@ def wait_for_service(url):
     """
     while True:
         try:
-            requests.get(url)
+            requests.get(url, timeout=120)
             return
         except requests.exceptions.RequestException:
-            print("Service not ready yet. Retrying...")
+            retries += 1
+
+            # Only log every 15 retries so the logs don't get spammed
+            if retries % 15 == 0:
+                print("Service not ready yet. Retrying...")
         except Exception as err:
             print("Error: ", err)
 
@@ -116,8 +120,7 @@ def handler(event):
 
 
 if __name__ == "__main__":
-    wait_for_service(url="http://127.0.0.1:3000/sdapi/v1/txt2img")
-
-    print("WebUI API Service is ready. Starting RunPod...")
+    wait_for_service(url="http://127.0.0.1:3000/sdapi/v1/sd-models")
+    print("WebUI API Service is ready. Starting RunPod Serverless...")
 
     runpod.serverless.start({"handler": handler})
