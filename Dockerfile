@@ -59,6 +59,7 @@ ADD ./realistic_6.safetensors /model.safetensors
 ADD ./control_v11p_sd15_openpose.yaml /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.yaml
 ADD ./control_v11p_sd15_openpose.pth /stable-diffusion-webui/extensions/sd-webui-controlnet/models/control_v11p_sd15_openpose.pth
 COPY ./insightface/ /stable-diffusion-webui/models/insightface/
+ADD ./last_device.txt /stable-diffusion-webui/extensions/sd-webui-reactor/last_device.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir runpod opencv-python-headless pyngrok
